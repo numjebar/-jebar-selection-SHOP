@@ -71,7 +71,7 @@ export function Metric({ label, value, suffix }: { label: string; value: number;
 export function ProductThumb({ productName, imageUrl }: { productName: string; imageUrl: string }) {
   return (
     <div className="miniThumb">
-      {imageUrl ? <img src={imageUrl} alt={productName} /> : <span>{productName.slice(0, 2)}</span>}
+      {imageUrl ? <img src={imageUrl} alt={productName} crossOrigin="anonymous" loading="lazy" /> : <span>{productName.slice(0, 2)}</span>}
     </div>
   )
 }
@@ -92,7 +92,7 @@ export function CatalogPoster({
       <p>{getTodayLabel()}</p>
       <div className="posterGrid">
         {products.map((product) => (
-          <div key={product.id}>
+          <div className="posterProduct" key={product.id}>
             <ProductThumb productName={product.nameTh} imageUrl={product.imageUrl} />
             <strong>{product.nameTh}</strong>
             <span>{formatBaht(product.price)}</span>
