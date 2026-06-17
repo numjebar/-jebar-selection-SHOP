@@ -7,6 +7,8 @@ const bucketName = 'catalog-images'
 const maxFileSize = 8 * 1024 * 1024
 const allowedTypes = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
 
+type ServerSupabase = NonNullable<ReturnType<typeof getServerSupabase>>
+
 function getServerSupabase() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -62,7 +64,7 @@ export async function POST(request: Request) {
   return NextResponse.json({ imageUrl: data.publicUrl })
 }
 
-async function ensurePublicBucket(supabase: ReturnType<typeof createClient>) {
+async function ensurePublicBucket(supabase: ServerSupabase) {
   const { data: buckets } = await supabase.storage.listBuckets()
   const bucket = buckets?.find((item) => item.name === bucketName)
 
