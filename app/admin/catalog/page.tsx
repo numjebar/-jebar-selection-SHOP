@@ -34,9 +34,10 @@ export default function CatalogBuilderPage() {
       try {
         const dataUrl = await toPng(posterRef.current, {
           cacheBust: true,
-          pixelRatio: 2,
+          pixelRatio: 1.5,
           backgroundColor: '#f2dfbf',
-          quality: 1
+          quality: 0.95,
+          skipFonts: true
         })
         const link = document.createElement('a')
         link.download = `je-bar-catalog-${new Date().toISOString().slice(0, 10)}.png`
@@ -171,13 +172,16 @@ async function embedImagesForDownload(root: HTMLElement) {
       if (!image.src || image.src.startsWith('data:') || image.src.startsWith('blob:')) return
 
       try {
-        const response = await fetch(image.src, { cache: 'no-store', mode: 'cors' })
+        const response = await fetch('/api/image-data-url', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: image.src })
+        })
         if (!response.ok) return
-        const blob = await response.blob()
-        const dataUrl = await blobToDataUrl(blob)
-        image.src = dataUrl
+        const data = (await response.json()) as { dataUrl?: string }
+        if (data.dataUrl) image.src = data.dataUrl
       } catch {
-        // keep original image when browser blocks conversion
+        // keep original image when conversion fails
       }
     })
   )
@@ -189,13 +193,4 @@ async function embedImagesForDownload(root: HTMLElement) {
       image.src = src
     })
   }
-}
-
-function blobToDataUrl(blob: Blob) {
-  return new Promise<string>((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => resolve(String(reader.result))
-    reader.onerror = () => reject(reader.error)
-    reader.readAsDataURL(blob)
-  })
 }
