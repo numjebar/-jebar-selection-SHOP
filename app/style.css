@@ -1,0 +1,1311 @@
+:root {
+  --bg: #f6f5f2;
+  --surface: #ffffff;
+  --surface-2: #fbfaf7;
+  --line: #e8e2d8;
+  --text: #181512;
+  --muted: #7a746c;
+  --dark: #12110f;
+  --brown: #6b3a0b;
+  --gold: #c79647;
+  --green: #18a058;
+  --danger: #b42318;
+  --shadow: 0 16px 40px rgba(33, 25, 16, 0.08);
+  --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-serif: "Noto Serif Thai", "Iowan Old Style", Georgia, "Times New Roman", serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button,
+.button {
+  align-items: center;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  display: inline-flex;
+  gap: 8px;
+  justify-content: center;
+  min-height: 40px;
+  padding: 10px 14px;
+  transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+}
+
+button:not(:disabled):hover,
+.button:hover {
+  transform: translateY(-1px);
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  font-family: var(--font-serif);
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.15;
+  margin-bottom: 8px;
+}
+
+h2 {
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+h3 {
+  font-family: var(--font-serif);
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.kicker {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.input,
+.toolbar input,
+.toolbar select {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--text);
+  padding: 11px 12px;
+  width: 100%;
+}
+
+.input:focus,
+.toolbar input:focus,
+.toolbar select:focus,
+.plainInput:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 4px rgba(199, 150, 71, 0.14);
+  outline: 0;
+}
+
+.passwordField {
+  position: relative;
+}
+
+.passwordField .input {
+  padding-right: 48px;
+}
+
+.passwordToggle {
+  background: transparent;
+  color: var(--muted);
+  min-height: 36px;
+  padding: 0;
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+}
+
+.passwordToggle:hover {
+  background: var(--surface-2);
+  transform: translateY(-50%);
+}
+
+.darkButton {
+  background: var(--dark);
+  color: #fff;
+  font-weight: 800;
+}
+
+.goldButton {
+  background: var(--brown);
+  color: #fff;
+  font-weight: 800;
+}
+
+.greenButton {
+  background: var(--green);
+  color: #fff;
+  font-weight: 800;
+}
+
+.subtleButton {
+  background: #fff;
+  border: 1px solid var(--line);
+  color: var(--text);
+  font-weight: 800;
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+.appFrame {
+  display: grid;
+  grid-template-columns: 224px 1fr;
+  min-height: 100vh;
+}
+
+.appSidebar {
+  background: linear-gradient(180deg, #181715, #0d0d0c);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: 22px 16px;
+}
+
+.brandBlock {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.brandLogoPlate {
+  align-items: center;
+  background: #fff;
+  border-radius: 8px;
+  display: flex;
+  height: 42px;
+  justify-content: center;
+  padding: 8px;
+  width: 82px;
+}
+
+.brandLogo {
+  display: block;
+  height: auto;
+  max-width: 180px;
+  object-fit: contain;
+  width: 100%;
+}
+
+.brandLogo.compact {
+  max-width: 118px;
+}
+
+.brandBlock strong,
+.brandBlock span {
+  display: block;
+}
+
+.brandBlock strong,
+.phoneHeader strong {
+  font-family: var(--font-serif);
+}
+
+.brandBlock span {
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.sideNav {
+  display: grid;
+  gap: 8px;
+}
+
+.sideNav a {
+  align-items: center;
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.82);
+  display: flex;
+  gap: 10px;
+  padding: 11px 12px;
+}
+
+.sideNav a.active,
+.sideNav a:hover {
+  background: rgba(199, 150, 71, 0.25);
+  color: #fff;
+}
+
+.logoutButton {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.82);
+  margin-top: auto;
+  width: 100%;
+}
+
+.logoutButton:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+}
+
+.workspace {
+  padding: 24px;
+}
+
+.pageHeader {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.dateChip {
+  align-items: center;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: flex;
+  gap: 8px;
+  padding: 10px 12px;
+}
+
+.metricGrid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-bottom: 18px;
+}
+
+.metricCard,
+.surface,
+.studioProductCard,
+.selectionRow,
+.phoneFrame,
+.customerNotes .surface {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
+
+.metricCard {
+  padding: 20px;
+}
+
+.metricCard span,
+.metricCard small {
+  color: var(--muted);
+  display: block;
+}
+
+.metricCard strong {
+  font-family: var(--font-serif);
+  display: block;
+  font-size: 34px;
+  line-height: 1;
+  margin: 12px 0 6px;
+}
+
+.dashboardGrid {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: minmax(0, 1fr) 360px;
+}
+
+.surface {
+  padding: 18px;
+}
+
+.surfaceHeader {
+  align-items: flex-start;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.surfaceHeader p {
+  color: var(--muted);
+  margin-bottom: 0;
+}
+
+.textAction {
+  color: var(--green);
+  font-weight: 800;
+}
+
+.compactList {
+  display: grid;
+  gap: 12px;
+}
+
+.compactRow {
+  align-items: center;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 54px minmax(0, 1fr) auto;
+}
+
+.compactRow span {
+  color: var(--green);
+  display: block;
+  font-size: 12px;
+  margin-top: 3px;
+}
+
+.miniThumb {
+  align-items: center;
+  aspect-ratio: 1;
+  background: linear-gradient(135deg, #f6e4c9, #ead6b8);
+  border-radius: 8px;
+  display: flex;
+  font-weight: 900;
+  justify-content: center;
+  overflow: hidden;
+  width: 54px;
+}
+
+.miniThumb img {
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
+}
+
+.posterPreview {
+  background: radial-gradient(circle at top, #f8e8d3, #f2dfbf 62%, #ead4af);
+  border: 1px solid #e7cfa9;
+  border-radius: 8px;
+  padding: 28px;
+  text-align: center;
+}
+
+.posterBrand {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.posterBrand .brandLogo {
+  max-width: 96px;
+}
+
+.posterPreview h3 {
+  font-family: var(--font-serif);
+  font-size: 30px;
+  font-weight: 900;
+  margin: 0;
+}
+
+.posterPreview p {
+  margin: 6px 0 20px;
+}
+
+.posterGrid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.posterGrid div {
+  display: grid;
+  justify-items: center;
+}
+
+.posterGrid .miniThumb {
+  margin-bottom: 8px;
+  width: 74px;
+}
+
+.posterGrid strong,
+.posterGrid span,
+.posterGrid small {
+  font-size: 11px;
+}
+
+.toolbar {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(260px, 1fr) 180px auto auto;
+  margin-bottom: 16px;
+}
+
+.searchBox {
+  align-items: center;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: flex;
+  gap: 8px;
+  padding: 0 12px;
+}
+
+.searchBox input {
+  border: 0;
+  box-shadow: none;
+}
+
+.viewSwitcher {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+}
+
+.viewSwitcher button {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: var(--muted);
+  display: inline-flex;
+  font-size: 13px;
+  font-weight: 900;
+  gap: 6px;
+  min-height: 34px;
+  padding: 0 10px;
+}
+
+.viewSwitcher button.active {
+  background: var(--dark);
+  color: #fff;
+}
+
+.addPanel {
+  margin-bottom: 16px;
+}
+
+.formGrid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-bottom: 14px;
+}
+
+.wide {
+  grid-column: 1 / -1;
+}
+
+.productStudioGrid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.productStudioGrid.compactProducts {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.compactProducts .studioProductCard {
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr);
+}
+
+.compactProducts .studioImage {
+  aspect-ratio: 1;
+  min-height: 112px;
+}
+
+.compactProducts .studioProductBody {
+  align-content: start;
+  gap: 6px;
+  padding: 10px;
+}
+
+.compactProducts textarea.plainInput {
+  min-height: 42px;
+}
+
+.studioProductCard {
+  overflow: hidden;
+}
+
+.studioImage {
+  aspect-ratio: 4 / 3;
+  background: #eee6db;
+  position: relative;
+}
+
+.studioImage > img,
+.studioImage > .miniThumb {
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
+}
+
+.studioImage > .miniThumb {
+  border-radius: 0;
+}
+
+.imageUpload {
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 999px;
+  bottom: 10px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 7px 10px;
+  position: absolute;
+  right: 10px;
+}
+
+.imageUpload input {
+  display: none;
+}
+
+.studioProductBody {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+}
+
+.plainInput {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 6px;
+  width: 100%;
+}
+
+.productNameInput {
+  font-weight: 900;
+}
+
+.priceInput {
+  font-size: 18px;
+  font-weight: 900;
+  max-width: 120px;
+}
+
+.cardFooter {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+}
+
+.cardFooter span {
+  background: #e8f7ee;
+  border-radius: 999px;
+  color: #087443;
+  font-size: 12px;
+  font-weight: 900;
+  padding: 5px 8px;
+}
+
+.dangerText {
+  background: transparent;
+  min-height: auto;
+  padding: 0;
+}
+
+.saleSwitch {
+  align-items: center;
+  background: #f2f2ef;
+  border: 1px solid var(--line);
+  color: #766f66;
+  display: inline-flex;
+  font-size: 12px;
+  font-weight: 900;
+  gap: 8px;
+  min-height: 32px;
+  padding: 5px 9px;
+}
+
+.saleSwitch.isOn {
+  background: #e9f8ef;
+  border-color: #b8e8cc;
+  color: #087443;
+}
+
+.switchTrack {
+  background: #c7c2ba;
+  border-radius: 999px;
+  display: inline-flex;
+  height: 18px;
+  padding: 2px;
+  width: 34px;
+}
+
+.saleSwitch.isOn .switchTrack {
+  background: var(--green);
+}
+
+.switchKnob {
+  background: #fff;
+  border-radius: 999px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.24);
+  display: block;
+  height: 14px;
+  transform: translateX(0);
+  transition: transform 0.16s ease;
+  width: 14px;
+}
+
+.saleSwitch.isOn .switchKnob {
+  transform: translateX(16px);
+}
+
+.dangerText {
+  color: var(--danger);
+  font-weight: 800;
+}
+
+.selectionTabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.selectionTabs button {
+  background: #fff;
+  border: 1px solid var(--line);
+  font-weight: 800;
+}
+
+.selectionTabs .active {
+  background: var(--dark);
+  color: #fff;
+}
+
+.categoryFilter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: -4px 0 16px;
+}
+
+.categoryFilter button {
+  background: #fff;
+  border: 1px solid var(--line);
+  font-weight: 800;
+}
+
+.categoryFilter button.active {
+  background: var(--brown);
+  color: #fff;
+}
+
+.selectionGrid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.selectionRow {
+  align-items: center;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 28px 58px minmax(0, 1fr) 138px;
+  padding: 14px;
+}
+
+.selectionRow.selected {
+  border-color: #cba66b;
+}
+
+.checkCell {
+  display: flex;
+}
+
+.selectionRow span,
+.selectionRow small {
+  color: var(--muted);
+  display: block;
+}
+
+.qtyControl {
+  display: grid;
+  gap: 6px;
+  justify-items: end;
+}
+
+.qtyControl div,
+.miniStepper {
+  align-items: center;
+  background: #f6f4f0;
+  border-radius: 8px;
+  display: grid;
+  grid-template-columns: 34px 44px 34px;
+  overflow: hidden;
+}
+
+.qtyControl button,
+.miniStepper button {
+  background: transparent;
+  min-height: 34px;
+  padding: 0;
+}
+
+.qtyControl input {
+  background: transparent;
+  border: 0;
+  text-align: center;
+  width: 44px;
+}
+
+.selectionFooter {
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  bottom: 16px;
+  box-shadow: var(--shadow);
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  margin-top: 16px;
+  padding: 16px;
+  position: sticky;
+}
+
+.builderGrid {
+  align-items: start;
+  display: grid;
+  gap: 18px;
+  grid-template-columns: minmax(0, 1fr) 280px;
+}
+
+.catalogCanvas .posterPreview {
+  margin: 0 auto;
+  max-width: 680px;
+}
+
+.builderActions {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 16px;
+}
+
+.builderPanel {
+  display: grid;
+  gap: 16px;
+}
+
+.sendPanel {
+  display: grid;
+  gap: 10px;
+}
+
+.automationNote {
+  background: #fff8e7;
+  border: 1px solid #f0d79d;
+  border-radius: 8px;
+  color: #775315;
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 0;
+  padding: 12px;
+}
+
+.templateGrid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.templateCard {
+  background: #f7f4ee;
+  border: 1px solid var(--line);
+  font-weight: 900;
+  min-height: 74px;
+}
+
+.templateCard.active {
+  border-color: var(--brown);
+}
+
+.swatches {
+  display: flex;
+  gap: 10px;
+}
+
+.swatches span {
+  border-radius: 999px;
+  height: 24px;
+  width: 24px;
+}
+
+.tickLine {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+}
+
+.customerPage {
+  align-items: start;
+  display: grid;
+  gap: 28px;
+  grid-template-columns: 360px minmax(260px, 420px);
+  justify-content: center;
+  min-height: 100vh;
+  padding: 40px 24px;
+}
+
+.phoneFrame {
+  border-radius: 34px;
+  overflow: hidden;
+  padding: 18px;
+}
+
+.phoneHeader {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.phoneHeader strong,
+.phoneHeader span {
+  display: block;
+}
+
+.phoneHeader .brandLogo {
+  max-width: 86px;
+}
+
+.phoneHeader span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.customerHero {
+  padding: 28px 0 20px;
+  text-align: center;
+}
+
+.orderSteps {
+  display: grid;
+  gap: 8px;
+  margin-top: 16px;
+  text-align: left;
+}
+
+.orderSteps div {
+  align-items: center;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: flex;
+  gap: 10px;
+  padding: 9px 10px;
+}
+
+.orderSteps b {
+  align-items: center;
+  background: var(--brown);
+  border-radius: 999px;
+  color: #fff;
+  display: inline-flex;
+  font-size: 12px;
+  height: 22px;
+  justify-content: center;
+  width: 22px;
+}
+
+.orderSteps span {
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.welcomeScreen {
+  display: grid;
+  gap: 18px;
+  min-height: 520px;
+  padding: 44px 8px 22px;
+  text-align: center;
+}
+
+.welcomeScreen h1 {
+  font-size: 38px;
+  margin-bottom: 0;
+}
+
+.welcomeScreen p {
+  color: var(--muted);
+  line-height: 1.8;
+}
+
+.welcomeStats {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 1fr;
+}
+
+.welcomeStats div {
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.welcomeStats strong,
+.welcomeStats span {
+  display: block;
+}
+
+.welcomeStats strong {
+  font-family: var(--font-serif);
+  font-size: 22px;
+}
+
+.welcomeStats span {
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 3px;
+}
+
+.customerHero h1 {
+  font-family: var(--font-serif);
+  font-size: 30px;
+}
+
+.customerList {
+  display: grid;
+  gap: 12px;
+}
+
+.customerItem {
+  align-items: center;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 62px minmax(0, 1fr) 112px;
+}
+
+.customerItem .miniThumb {
+  width: 62px;
+}
+
+.customerItem span,
+.customerItem small {
+  display: block;
+}
+
+.customerItem small {
+  color: var(--green);
+  margin-top: 4px;
+}
+
+.miniStepper {
+  grid-template-columns: 30px 36px 30px;
+}
+
+.customerFooter {
+  display: grid;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.customerHint {
+  background: #fff8e7;
+  border: 1px solid #f0d79d;
+  border-radius: 8px;
+  color: #775315;
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 0;
+  padding: 10px 12px;
+}
+
+.customerHint.copiedHint {
+  background: #e9f8ef;
+  border-color: #b8e8cc;
+  color: #087443;
+  font-weight: 800;
+}
+
+.customerNotes {
+  display: grid;
+  gap: 16px;
+}
+
+.customerNotes ul {
+  line-height: 1.9;
+  margin-bottom: 0;
+  padding-left: 20px;
+}
+
+.warningBox {
+  background: #fff8e7;
+  border: 1px solid #f7d48b;
+  border-radius: 8px;
+  color: #8a5a00;
+  font-weight: 800;
+  margin-bottom: 16px;
+  padding: 12px 14px;
+}
+
+.settingsGrid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.messageEditor {
+  display: grid;
+  gap: 10px;
+}
+
+.messageEditor:first-child {
+  grid-row: span 2;
+}
+
+.messageEditor span {
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.categoryManager {
+  display: grid;
+  gap: 14px;
+}
+
+.passwordManager {
+  display: grid;
+  gap: 14px;
+}
+
+.categoryManager span {
+  display: block;
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.passwordManager span {
+  display: block;
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.categoryAddRow,
+.categoryRow {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.passwordForm {
+  display: grid;
+  gap: 12px;
+}
+
+.passwordForm label {
+  display: grid;
+  gap: 6px;
+}
+
+.passwordMessage {
+  background: #fff8e7;
+  border: 1px solid #f0d79d;
+  border-radius: 8px;
+  color: #775315;
+  font-weight: 800;
+  margin: 0;
+  padding: 10px 12px;
+}
+
+.categoryList {
+  display: grid;
+  gap: 10px;
+}
+
+.dangerButton {
+  color: var(--danger);
+}
+
+.messageEditor small {
+  color: var(--muted);
+}
+
+.messageEditor textarea {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  line-height: 1.65;
+  min-height: 220px;
+  padding: 12px;
+  resize: vertical;
+  width: 100%;
+}
+
+.settingsFooter {
+  align-items: center;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 14px 16px;
+}
+
+.loginPage {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 24px;
+}
+
+.loginCard {
+  display: grid;
+  gap: 22px;
+  max-width: 420px;
+  width: 100%;
+}
+
+.loginCard .brandLogo {
+  max-width: 150px;
+}
+
+.loginForm,
+.loginForm label {
+  display: grid;
+  gap: 10px;
+}
+
+.loginForm label span {
+  font-weight: 900;
+}
+
+@media print {
+  .appSidebar,
+  .pageHeader,
+  .builderPanel,
+  .builderActions {
+    display: none;
+  }
+
+  .appFrame,
+  .builderGrid {
+    display: block;
+  }
+}
+
+@media (max-width: 1180px) {
+  .productStudioGrid,
+  .posterGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .selectionGrid,
+  .dashboardGrid,
+  .builderGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 840px) {
+  .appFrame,
+  .customerPage {
+    grid-template-columns: 1fr;
+  }
+
+  .appSidebar {
+    min-height: auto;
+  }
+
+  .sideNav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .pageHeader,
+  .selectionFooter {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .metricGrid,
+  .selectionGrid,
+  .toolbar,
+  .builderActions,
+  .formGrid,
+  .settingsGrid,
+  .categoryAddRow,
+  .categoryRow {
+    grid-template-columns: 1fr;
+  }
+
+  .productStudioGrid.cardProducts {
+    gap: 12px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .productStudioGrid.compactProducts {
+    gap: 10px;
+    grid-template-columns: 1fr;
+  }
+
+  .cardProducts .studioImage {
+    aspect-ratio: 1;
+  }
+
+  .compactProducts .studioProductCard {
+    grid-template-columns: 92px minmax(0, 1fr);
+  }
+
+  .compactProducts .studioImage {
+    min-height: 92px;
+  }
+
+  .studioProductBody {
+    padding: 10px;
+  }
+
+  .studioProductBody textarea {
+    min-height: 44px;
+  }
+
+  .cardFooter {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .viewSwitcher {
+    justify-content: stretch;
+  }
+
+  .viewSwitcher button {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .selectionRow {
+    grid-template-columns: 28px 58px minmax(0, 1fr);
+  }
+
+  .qtyControl {
+    grid-column: 1 / -1;
+    justify-items: stretch;
+  }
+
+  .qtyControl div {
+    width: max-content;
+  }
+
+  .phoneFrame {
+    border-radius: 8px;
+  }
+}
