@@ -174,14 +174,14 @@ export default function CatalogBuilderPage() {
 async function renderCatalogCanvas(products: Product[], selection: SelectionMap) {
   const width = 1200
   const columns = 3
-  const gapX = 60
-  const gapY = 54
-  const paddingX = 80
-  const headerHeight = 260
+  const gapX = 28
+  const gapY = 18
+  const paddingX = 56
+  const headerHeight = 205
   const cardWidth = (width - paddingX * 2 - gapX * (columns - 1)) / columns
-  const cardHeight = 270
+  const cardHeight = 285
   const rows = Math.max(1, Math.ceil(products.length / columns))
-  const height = headerHeight + rows * cardHeight + Math.max(0, rows - 1) * gapY + 90
+  const height = headerHeight + rows * cardHeight + Math.max(0, rows - 1) * gapY + 54
 
   const canvas = document.createElement('canvas')
   canvas.width = width
@@ -191,19 +191,19 @@ async function renderCatalogCanvas(products: Product[], selection: SelectionMap)
 
   ctx.fillStyle = '#f2dfbf'
   ctx.fillRect(0, 0, width, height)
-  drawRoundedRect(ctx, 22, 22, width - 44, height - 44, 24, '#f2dfbf', '#e7cfa9')
+  drawRoundedRect(ctx, 18, 18, width - 36, height - 36, 22, '#f2dfbf', '#e7cfa9')
 
   ctx.textAlign = 'center'
   ctx.fillStyle = '#3b3229'
-  ctx.font = '700 54px Georgia, serif'
-  ctx.fillText('J E B A R', width / 2, 100)
+  ctx.font = '700 50px Georgia, serif'
+  ctx.fillText('J E B A R', width / 2, 78)
 
   ctx.fillStyle = '#181512'
-  ctx.font = '900 64px sans-serif'
-  ctx.fillText('ขนมในตู้วันนี้', width / 2, 176)
+  ctx.font = '900 58px sans-serif'
+  ctx.fillText('ขนมในตู้วันนี้', width / 2, 142)
 
-  ctx.font = '400 34px sans-serif'
-  ctx.fillText(getTodayLabel(), width / 2, 228)
+  ctx.font = '400 31px sans-serif'
+  ctx.fillText(getTodayLabel(), width / 2, 185)
 
   const loadedImages = await Promise.all(products.map((product) => loadCatalogImage(product.imageUrl)))
 
@@ -214,7 +214,7 @@ async function renderCatalogCanvas(products: Product[], selection: SelectionMap)
     const x = paddingX + col * (cardWidth + gapX)
     const y = headerHeight + row * (cardHeight + gapY)
     const image = loadedImages[index]
-    const imageSize = 150
+    const imageSize = 188
     const imageX = x + (cardWidth - imageSize) / 2
     const imageY = y
 
@@ -223,19 +223,19 @@ async function renderCatalogCanvas(products: Product[], selection: SelectionMap)
     } else {
       drawRoundedRect(ctx, imageX, imageY, imageSize, imageSize, 18, '#ead6b8')
       ctx.fillStyle = '#6b3a0b'
-      ctx.font = '900 34px sans-serif'
-      ctx.fillText(product.nameTh.slice(0, 2), x + cardWidth / 2, imageY + 88)
+      ctx.font = '900 38px sans-serif'
+      ctx.fillText(product.nameTh.slice(0, 2), x + cardWidth / 2, imageY + 104)
     }
 
     ctx.fillStyle = '#181512'
-    ctx.font = '900 28px sans-serif'
-    drawCenteredWrappedText(ctx, product.nameTh, x + cardWidth / 2, y + 190, cardWidth, 34, 2)
+    ctx.font = '900 31px sans-serif'
+    drawCenteredWrappedText(ctx, product.nameTh, x + cardWidth / 2, y + 224, cardWidth - 10, 36, 2)
 
-    ctx.font = '400 27px sans-serif'
-    ctx.fillText(formatBaht(product.price), x + cardWidth / 2, y + 258)
+    ctx.font = '400 28px sans-serif'
+    ctx.fillText(formatBaht(product.price), x + cardWidth / 2, y + 271)
 
     ctx.font = '400 25px sans-serif'
-    ctx.fillText(`เหลือ ${selection[product.id]?.quantity || 0} ชิ้น`, x + cardWidth / 2, y + 292)
+    ctx.fillText(`เหลือ ${selection[product.id]?.quantity || 0} ชิ้น`, x + cardWidth / 2, y + 302)
   }
 
   return canvas.toDataURL('image/png', 0.95)
