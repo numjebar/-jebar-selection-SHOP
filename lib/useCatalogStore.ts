@@ -29,10 +29,10 @@ export function useCatalogStore() {
 
   useEffect(() => {
     async function loadStore() {
-      const storedProducts = localStorage.getItem(productsStorageKey)
-      const storedSelection = localStorage.getItem(selectionStorageKey)
-      const storedCategories = localStorage.getItem(categoriesStorageKey)
-      const storedMessages = localStorage.getItem(messageSettingsStorageKey)
+      const storedProducts = safeReadLocalStorage(productsStorageKey)
+      const storedSelection = safeReadLocalStorage(selectionStorageKey)
+      const storedCategories = safeReadLocalStorage(categoriesStorageKey)
+      const storedMessages = safeReadLocalStorage(messageSettingsStorageKey)
 
       if (storedProducts) setProducts(JSON.parse(storedProducts))
       if (storedSelection) setSelection(JSON.parse(storedSelection))
@@ -60,26 +60,17 @@ export function useCatalogStore() {
   useEffect(() => {
     if (!isReady) return
 
-    try {
-      localStorage.setItem(productsStorageKey, JSON.stringify(products))
-      localStorage.setItem(selectionStorageKey, JSON.stringify(selection))
-      localStorage.setItem(categoriesStorageKey, JSON.stringify(categories))
-      localStorage.setItem(messageSettingsStorageKey, JSON.stringify(messages))
-      if (storageMode === 'cloud') saveCloudCatalogSnapshot(makeSnapshot(products, selection, categories, messages))
-      setWarning('')
-      setSavedAt(new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }))
-    } catch {
-      const productsWithoutImages = products.map((product) => ({ ...product, imageUrl: '' }))
+    const snapshot = makeSnapshot(products, selection, categories, messages)
 
-      localStorage.setItem(productsStorageKey, JSON.stringify(productsWithoutImages))
-      localStorage.setItem(selectionStorageKey, JSON.stringify(selection))
-      localStorage.setItem(categoriesStorageKey, JSON.stringify(categories))
-      localStorage.setItem(messageSettingsStorageKey, JSON.stringify(messages))
-      if (storageMode === 'cloud') saveCloudCatalogSnapshot(makeSnapshot(productsWithoutImages, selection, categories, messages))
-      setProducts(productsWithoutImages)
-      setWarning('พื้นที่บันทึกรูปใน browser เต็ม ระบบจึงตัดรูปขนาดใหญ่ออก แต่ข้อมูลสินค้าและจำนวนยังถูกบันทึกไว้')
-      setSavedAt(new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }))
+    if (storageMode === 'cloud') {
+      saveCloudCatalogSnapshot(snapshot).then((saved) => {
+        if (!saved) setWarning('บันทึกขึ้น Cloud ไม่สำเร็จ กรุณาเช็คการเข้าสู่ระบบหรืออินเทอร์เน็ต')
+      })
     }
+
+    const localSaved = saveSafeLocalCache(products, selection, categories, messages)
+    setWarning(localSaved ? '' : 'พื้นที่ browser เต็ม ระบบยังเก็บข้อมูลขึ้น Cloud แต่จะไม่เก็บรูปซ้ำในเครื่องนี้')
+    setSavedAt(new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }))
   }, [categories, isReady, messages, products, selection, storageMode])
 
   const stats = useMemo(() => {
@@ -205,5 +196,40 @@ function makeSnapshot(products: Product[], selection: SelectionMap, categories: 
     categories,
     messages,
     updatedAt: new Date().toISOString()
+  }
+}
+
+function saveSafeLocalCache(products: Product[], selection: SelectionMap, categories: Category[], messages: MessageSettings) {
+  try {
+    localStorage.setItem(productsStorageKey, JSON.stringify(stripLargeInlineImages(products)))
+    localStorage.setItem(selectionStorageKey, JSON.stringify(selection))
+    localStorage.setItem(categoriesStorageKey, JSON.stringify(categories))
+    localStorage.setItem(messageSettingsStorageKey, JSON.stringify(messages))
+    return true
+  } catch {
+    try {
+      localStorage.removeItem(productsStorageKey)
+      localStorage.removeItem(selectionStorageKey)
+      localStorage.removeItem(categoriesStorageKey)
+      localStorage.removeItem(messageSettingsStorageKey)
+    } catch {
+      // ignore browser storage cleanup errors
+    }
+    return false
+  }
+}
+
+function stripLargeInlineImages(products: Product[]) {
+  return products.map((product) => {
+    if (!product.imageUrl?.startsWith('data:image/')) return product
+    return { ...product, imageUrl: '' }
+  })
+}
+
+function safeReadLocalStorage(key: string) {
+  try {
+    return localStorage.getItem(key)
+  } catch {
+    return null
   }
 }
