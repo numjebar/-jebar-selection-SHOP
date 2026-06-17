@@ -40,10 +40,37 @@ export default function CatalogPage() {
     window.setTimeout(() => setCopied(false), 1800)
   }
 
+  const summaryBox = (
+    <section className="surface compactOrderSummary">
+      <h2>สรุปการจอง</h2>
+      {selectedProducts.length === 0 ? (
+        <p className="muted">ยังไม่ได้เลือกรายการ</p>
+      ) : (
+        <div className="orderSummaryList compact">
+          {selectedProducts.map((product) => {
+            const quantity = cart[product.id] || 0
+            const lineTotal = product.price * quantity
+            return (
+              <div className="orderSummaryItem compact" key={product.id}>
+                <span>{product.nameTh}</span>
+                <b>x{quantity}</b>
+                <strong>{formatBaht(lineTotal)}</strong>
+              </div>
+            )
+          })}
+        </div>
+      )}
+      <div className="orderSummaryTotal compact">
+        <span>รวม {totalQuantity} ชิ้น</span>
+        <strong>{formatBaht(totalPrice)}</strong>
+      </div>
+    </section>
+  )
+
   return (
-    <main className="customerPage">
-      <section className="phoneFrame">
-        <header className="phoneHeader">
+    <main className="customerPage compactCustomerPage">
+      <section className="phoneFrame compactPhoneFrame">
+        <header className="phoneHeader compactPhoneHeader">
           <div>
             <BrandLogo compact />
             <span>Bakery & Home</span>
@@ -72,30 +99,24 @@ export default function CatalogPage() {
           </section>
         ) : (
           <>
-            <div className="customerHero">
+            <div className="customerHero compactCustomerHero">
               <h1>ขนมในตู้วันนี้</h1>
               <p>{getTodayLabel()}</p>
-              <div className="orderSteps">
-                <div><b>1</b><span>เลือกจำนวน</span></div>
-                <div><b>2</b><span>กดคัดลอกข้อความ</span></div>
-                <div><b>3</b><span>วางส่งใน LINE OA หรือ Inbox</span></div>
-              </div>
             </div>
 
-            <section className="customerList">
+            <section className="customerList compactCustomerList">
               {todayProducts.map((product) => {
                 const max = selection[product.id]?.quantity || 0
                 const quantity = cart[product.id] || 0
 
                 return (
-                  <article className="customerItem" key={product.id}>
+                  <article className="customerItem compactCustomerItem" key={product.id}>
                     <ProductThumb productName={product.nameTh} imageUrl={product.imageUrl} />
-                    <div>
+                    <div className="customerItemInfo">
                       <strong>{product.nameTh}</strong>
-                      <span>{formatBaht(product.price)}</span>
-                      <small>เหลือ {max} ชิ้น</small>
+                      <span>{formatBaht(product.price)} <small>เหลือ {max} ชิ้น</small></span>
                     </div>
-                    <div className="miniStepper">
+                    <div className="miniStepper compactMiniStepper">
                       <button onClick={() => updateCart(product.id, quantity - 1, max)} disabled={quantity === 0}>-</button>
                       <b>{quantity}</b>
                       <button onClick={() => updateCart(product.id, quantity + 1, max)} disabled={quantity >= max}>+</button>
@@ -105,18 +126,19 @@ export default function CatalogPage() {
               })}
             </section>
 
-            <footer className="customerFooter">
+            <footer className="customerFooter compactCustomerFooter">
               <button className="button greenButton fullWidth" onClick={copyOrder} disabled={selectedProducts.length === 0}>
                 <ClipboardCopy size={17} />
                 {copied ? 'คัดลอกข้อความแล้ว' : 'คัดลอกข้อความสั่งซื้อ'}
               </button>
+              {summaryBox}
               {copied ? (
                 <p className="customerHint copiedHint">
-                  คัดลอกข้อความแล้วค่ะ เมื่อลูกค้าส่งข้อความแล้ว รอทางร้านคอนเฟิร์มออเดอร์อีกทีนะคะ
+                  คัดลอกข้อความแล้วค่ะ ส่งใน LINE OA หรือ Facebook Inbox แล้วรอร้านยืนยันนะคะ
                 </p>
               ) : (
-                <p className="customerHint">
-                  กดคัดลอกก่อน แล้วนำข้อความไปวางส่งให้ร้านใน LINE OA หรือ Facebook Inbox เพื่อให้ร้านตรวจสอบและยืนยันรายการค่ะ
+                <p className="customerHint compactHint">
+                  กดคัดลอก แล้วนำข้อความไปวางส่งให้ร้านใน LINE OA หรือ Facebook Inbox ค่ะ
                 </p>
               )}
             </footer>
@@ -124,40 +146,15 @@ export default function CatalogPage() {
         )}
       </section>
 
-      <aside className="customerNotes">
-        <section className="surface">
+      <aside className="customerNotes compactCustomerNotes">
+        <section className="surface compactHowTo">
           <h2>วิธีจอง</h2>
           <ul>
-            <li>กดดูรายการขนม</li>
             <li>เลือกจำนวนที่ต้องการ</li>
             <li>กดคัดลอกข้อความสั่งซื้อ</li>
-            <li>เปิด LINE OA หรือ Facebook Inbox</li>
-            <li>วางข้อความแล้วส่งกลับมาให้ร้านยืนยัน</li>
+            <li>วางส่งใน LINE OA หรือ Facebook Inbox</li>
+            <li>รอร้านตรวจสอบและยืนยันรายการ</li>
           </ul>
-        </section>
-        <section className="surface">
-          <h2>สรุปการจอง</h2>
-          {selectedProducts.length === 0 ? (
-            <p className="muted">ยังไม่ได้เลือกรายการ</p>
-          ) : (
-            <div className="orderSummaryList">
-              {selectedProducts.map((product) => {
-                const quantity = cart[product.id] || 0
-                const lineTotal = product.price * quantity
-                return (
-                  <div className="orderSummaryItem" key={product.id}>
-                    <span>{product.nameTh}</span>
-                    <b>x{quantity}</b>
-                    <strong>{formatBaht(lineTotal)}</strong>
-                  </div>
-                )
-              })}
-            </div>
-          )}
-          <div className="orderSummaryTotal">
-            <span>รวม {totalQuantity} ชิ้น</span>
-            <strong>{formatBaht(totalPrice)}</strong>
-          </div>
         </section>
       </aside>
     </main>
