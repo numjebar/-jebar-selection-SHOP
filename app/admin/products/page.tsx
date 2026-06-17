@@ -3,8 +3,9 @@
 import { ChangeEvent, useMemo, useState } from 'react'
 import { LayoutGrid, List, Plus, Search, Tags } from 'lucide-react'
 import { ProductThumb, Sidebar } from '../../../components/AppUi'
-import { Product, formatBaht, getCategoryLabel, makeProductId } from '../../../lib/catalogData'
-import { resizeImageForStorage, useCatalogStore } from '../../../lib/useCatalogStore'
+import { Product, getCategoryLabel, makeProductId } from '../../../lib/catalogData'
+import { uploadCatalogImage } from '../../../lib/catalogImageUpload'
+import { useCatalogStore } from '../../../lib/useCatalogStore'
 
 const blankProduct = {
   nameTh: '',
@@ -24,6 +25,7 @@ export default function ProductsAdminPage() {
   const [showForm, setShowForm] = useState(false)
   const [viewMode, setViewMode] = useState<ProductViewMode>('compact')
   const [form, setForm] = useState(blankProduct)
+  const [uploadingProductId, setUploadingProductId] = useState<string | null>(null)
 
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
@@ -63,8 +65,18 @@ export default function ProductsAdminPage() {
     const file = event.target.files?.[0]
     if (!file) return
 
-    const imageUrl = await resizeImageForStorage(file)
-    updateProduct(id, { imageUrl })
+    setUploadingProductId(id)
+
+    try {
+      const imageUrl = await uploadCatalogImage(id, file)
+      updateProduct(id, { imageUrl })
+    } catch (error) {
+      console.error(error)
+      alert(error instanceof Error ? error.message : 'อัปโหลดรูปไม่สำเร็จ กรุณาลองใหม่')
+    } finally {
+      setUploadingProductId(null)
+      event.target.value = ''
+    }
   }
 
   return (
@@ -141,8 +153,8 @@ export default function ProductsAdminPage() {
               <div className="studioImage">
                 {product.imageUrl ? <img src={product.imageUrl} alt={product.nameTh} /> : <ProductThumb productName={product.nameTh} imageUrl="" />}
                 <label className="imageUpload">
-                  เปลี่ยนรูป
-                  <input type="file" accept="image/*" onChange={(event) => handleImage(product.id, event)} />
+                  {uploadingProductId === product.id ? 'กำลังอัปโหลด...' : 'เปลี่ยนรูป'}
+                  <input type="file" accept="image/*" disabled={uploadingProductId === product.id} onChange={(event) => handleImage(product.id, event)} />
                 </label>
               </div>
 
