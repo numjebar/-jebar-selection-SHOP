@@ -11,6 +11,8 @@ export default function CatalogBuilderPage() {
   const { products, selection, messages } = useCatalogStore()
   const todayProducts = getAvailableProducts(products, selection)
   const [isDownloading, setIsDownloading] = useState(false)
+  const [isMigrating, setIsMigrating] = useState(false)
+  const [mobileImageUrl, setMobileImageUrl] = useState('')
   const [copied, setCopied] = useState('')
   const customerUrl = typeof window === 'undefined' ? '/catalog' : `${window.location.origin}/catalog`
   const lineUrl = process.env.NEXT_PUBLIC_LINE_OA_URL || process.env.NEXT_PUBLIC_LINE_URL || 'https://lin.ee/t8QoAix'
@@ -20,14 +22,37 @@ export default function CatalogBuilderPage() {
     window.print()
   }
 
+  async function migrateOldImages() {
+    setIsMigrating(true)
+
+    try {
+      const response = await fetch('/api/migrate-images', { method: 'POST' })
+      const data = (await response.json().catch(() => ({}))) as { migrated?: number; failed?: number; error?: string }
+      if (!response.ok) throw new Error(data.error || 'Migration failed')
+      alert(`ย้ายรูปเก่าเข้า Supabase Storage แล้ว ${data.migrated || 0} รูป${data.failed ? ` / ไม่สำเร็จ ${data.failed} รูป` : ''}`)
+      window.location.reload()
+    } catch (error) {
+      console.error(error)
+      alert(error instanceof Error ? error.message : 'ย้ายรูปเก่าไม่สำเร็จ')
+    } finally {
+      setIsMigrating(false)
+    }
+  }
+
   async function downloadCatalogImage() {
     setIsDownloading(true)
 
     try {
       const dataUrl = await renderCatalogCanvas(todayProducts, selection)
+      const blob = dataUrlToBlob(dataUrl)
+      const objectUrl = URL.createObjectURL(blob)
+
+      if (mobileImageUrl) URL.revokeObjectURL(mobileImageUrl)
+      setMobileImageUrl(objectUrl)
+
       const link = document.createElement('a')
       link.download = `je-bar-catalog-${new Date().toISOString().slice(0, 10)}.png`
-      link.href = dataUrl
+      link.href = objectUrl
       document.body.appendChild(link)
       link.click()
       link.remove()
@@ -82,6 +107,14 @@ export default function CatalogBuilderPage() {
                 พิมพ์ / PDF
               </button>
             </div>
+            {mobileImageUrl ? (
+              <div className="mobileSaveBox">
+                <p>ถ้ามือถือไม่เซฟอัตโนมัติ ให้กดปุ่มนี้แล้วแตะค้างที่รูปเพื่อ Save Image</p>
+                <a className="button subtleButton fullWidth" href={mobileImageUrl} target="_blank" rel="noreferrer">
+                  เปิดรูปสำหรับเซฟในมือถือ
+                </a>
+              </div>
+            ) : null}
           </section>
 
           <aside className="surface builderPanel">
@@ -107,6 +140,11 @@ export default function CatalogBuilderPage() {
             <p className="automationNote">
               ข้อความด้านบนแก้ได้ที่เมนู “ตั้งค่าข้อความ” ส่วน auto-reply จริงต้องต่อ LINE Messaging API และ Meta Messenger Webhook เพิ่ม
             </p>
+
+            <h2>จัดการรูป</h2>
+            <button className="button subtleButton fullWidth" onClick={migrateOldImages} disabled={isMigrating}>
+              {isMigrating ? 'กำลังย้ายรูป...' : 'ย้ายรูปเก่าเข้า Supabase Storage'}
+            </button>
 
             <h2>รูปแบบ</h2>
             <div className="templateGrid">
@@ -225,6 +263,19 @@ async function loadCatalogImage(src: string) {
     image.onerror = () => resolve(null)
     image.src = imageSrc
   })
+}
+
+function dataUrlToBlob(dataUrl: string) {
+  const [header, base64] = dataUrl.split(',')
+  const contentType = header.match(/data:(.*?);base64/)?.[1] || 'image/png'
+  const binary = atob(base64)
+  const bytes = new Uint8Array(binary.length)
+
+  for (let index = 0; index < binary.length; index += 1) {
+    bytes[index] = binary.charCodeAt(index)
+  }
+
+  return new Blob([bytes], { type: contentType })
 }
 
 function drawCenteredWrappedText(ctx: CanvasRenderingContext2D, text: string, centerX: number, y: number, maxWidth: number, lineHeight: number, maxLines: number) {
