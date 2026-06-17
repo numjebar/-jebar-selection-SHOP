@@ -28,15 +28,26 @@ export default function CatalogBuilderPage() {
     setIsDownloading(true)
 
     try {
-      const dataUrl = await toPng(posterRef.current, {
-        cacheBust: true,
-        pixelRatio: 2,
-        backgroundColor: '#f2dfbf'
-      })
-      const link = document.createElement('a')
-      link.download = `je-bar-catalog-${new Date().toISOString().slice(0, 10)}.png`
-      link.href = dataUrl
-      link.click()
+      await waitForImages(posterRef.current)
+      const restoreImages = await embedImagesForDownload(posterRef.current)
+
+      try {
+        const dataUrl = await toPng(posterRef.current, {
+          cacheBust: true,
+          pixelRatio: 2,
+          backgroundColor: '#f2dfbf',
+          quality: 1
+        })
+        const link = document.createElement('a')
+        link.download = `je-bar-catalog-${new Date().toISOString().slice(0, 10)}.png`
+        link.href = dataUrl
+        link.click()
+      } finally {
+        restoreImages()
+      }
+    } catch (error) {
+      console.error(error)
+      alert('ดาวน์โหลดรูปไม่สำเร็จ กรุณาลองใหม่ หรือใช้ปุ่มพิมพ์ / PDF')
     } finally {
       setIsDownloading(false)
     }
@@ -71,7 +82,7 @@ export default function CatalogBuilderPage() {
         <div className="builderGrid">
           <section className="catalogCanvas surface">
             <div ref={posterRef}>
-              <CatalogPoster products={todayProducts.slice(0, 8)} selection={selection} />
+              <CatalogPoster products={todayProducts} selection={selection} />
             </div>
             <div className="builderActions">
               <button className="button darkButton" onClick={downloadCatalogImage} disabled={isDownloading}>
@@ -136,4 +147,55 @@ export default function CatalogBuilderPage() {
       </section>
     </main>
   )
+}
+
+async function waitForImages(root: HTMLElement) {
+  const images = Array.from(root.querySelectorAll('img'))
+  await Promise.all(
+    images.map((image) => {
+      if (image.complete && image.naturalWidth > 0) return Promise.resolve()
+      return new Promise<void>((resolve) => {
+        image.onload = () => resolve()
+        image.onerror = () => resolve()
+      })
+    })
+  )
+}
+
+async function embedImagesForDownload(root: HTMLElement) {
+  const images = Array.from(root.querySelectorAll('img'))
+  const originals = images.map((image) => ({ image, src: image.src }))
+
+  await Promise.all(
+    images.map(async (image) => {
+      if (!image.src || image.src.startsWith('data:') || image.src.startsWith('blob:')) return
+
+      try {
+        const response = await fetch(image.src, { cache: 'no-store', mode: 'cors' })
+        if (!response.ok) return
+        const blob = await response.blob()
+        const dataUrl = await blobToDataUrl(blob)
+        image.src = dataUrl
+      } catch {
+        // keep original image when browser blocks conversion
+      }
+    })
+  )
+
+  await waitForImages(root)
+
+  return () => {
+    originals.forEach(({ image, src }) => {
+      image.src = src
+    })
+  }
+}
+
+function blobToDataUrl(blob: Blob) {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(String(reader.result))
+    reader.onerror = () => reject(reader.error)
+    reader.readAsDataURL(blob)
+  })
 }
