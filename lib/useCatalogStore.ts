@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   Category,
   Product,
@@ -26,6 +26,7 @@ export function useCatalogStore() {
   const [warning, setWarning] = useState('')
   const [storageMode, setStorageMode] = useState<'cloud' | 'local'>('local')
   const [isReady, setIsReady] = useState(false)
+  const migrationRunningRef = useRef(false)
 
   useEffect(() => {
     async function loadStore() {
@@ -72,6 +73,38 @@ export function useCatalogStore() {
     setWarning(localSaved ? '' : 'พื้นที่ browser เต็ม ระบบยังเก็บข้อมูลขึ้น Cloud แต่จะไม่เก็บรูปซ้ำในเครื่องนี้')
     setSavedAt(new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }))
   }, [categories, isReady, messages, products, selection, storageMode])
+
+  useEffect(() => {
+    if (!isReady || storageMode !== 'cloud' || migrationRunningRef.current) return
+
+    const inlineProducts = products.filter((product) => product.imageUrl?.startsWith('data:image/'))
+    if (inlineProducts.length === 0) return
+
+    migrationRunningRef.current = true
+    setWarning(`กำลังย้ายรูปเก่า ${inlineProducts.length} รูปไป Supabase Storage`)
+
+    async function migrateImages() {
+      const migratedProducts = [...products]
+      let changed = false
+
+      for (const product of inlineProducts) {
+        const imageUrl = await uploadInlineImageToStorage(product.id, product.imageUrl).catch(() => '')
+        if (!imageUrl) continue
+
+        const index = migratedProducts.findIndex((item) => item.id === product.id)
+        if (index >= 0) {
+          migratedProducts[index] = { ...migratedProducts[index], imageUrl }
+          changed = true
+        }
+      }
+
+      if (changed) setProducts(migratedProducts)
+      setWarning(changed ? 'ย้ายรูปไป Supabase Storage แล้ว' : 'ย้ายรูปเก่าไป Storage ไม่สำเร็จ กรุณาอัปโหลดรูปใหม่')
+      migrationRunningRef.current = false
+    }
+
+    migrateImages()
+  }, [isReady, products, storageMode])
 
   const stats = useMemo(() => {
     const todayProducts = products.filter((product) => selection[product.id]?.isAvailable)
@@ -232,4 +265,17 @@ function safeReadLocalStorage(key: string) {
   } catch {
     return null
   }
+}
+
+async function uploadInlineImageToStorage(productId: string, dataUrl: string) {
+  const response = await fetch('/api/catalog-image', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ productId, dataUrl })
+  })
+
+  const data = (await response.json().catch(() => ({}))) as { imageUrl?: string }
+  if (!response.ok || !data.imageUrl) throw new Error('Cannot migrate image')
+
+  return data.imageUrl
 }
