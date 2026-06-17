@@ -137,8 +137,27 @@ export default function CatalogPage() {
         </section>
         <section className="surface">
           <h2>สรุปการจอง</h2>
-          <p>เลือกแล้ว {totalQuantity} ชิ้น</p>
-          <strong>{formatBaht(totalPrice)}</strong>
+          {selectedProducts.length === 0 ? (
+            <p className="muted">ยังไม่ได้เลือกรายการ</p>
+          ) : (
+            <div className="orderSummaryList">
+              {selectedProducts.map((product) => {
+                const quantity = cart[product.id] || 0
+                const lineTotal = product.price * quantity
+                return (
+                  <div className="orderSummaryItem" key={product.id}>
+                    <span>{product.nameTh}</span>
+                    <b>x{quantity}</b>
+                    <strong>{formatBaht(lineTotal)}</strong>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+          <div className="orderSummaryTotal">
+            <span>รวม {totalQuantity} ชิ้น</span>
+            <strong>{formatBaht(totalPrice)}</strong>
+          </div>
         </section>
       </aside>
     </main>
