@@ -27,31 +27,51 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Missing Supabase environment variables' }, { status: 500 })
   }
 
-  const formData = await request.formData()
-  const file = formData.get('file') as File | null
-  const productId = String(formData.get('productId') || 'product')
+  const contentType = request.headers.get('content-type') || ''
+  let fileBytes: ArrayBuffer
+  let fileType = 'image/jpeg'
+  let productId = 'product'
 
-  if (!file) {
-    return NextResponse.json({ error: 'No file uploaded' }, { status: 400 })
+  if (contentType.includes('application/json')) {
+    const body = (await request.json().catch(() => ({}))) as { dataUrl?: string; productId?: string }
+    productId = String(body.productId || 'product')
+
+    const parsed = parseDataUrl(String(body.dataUrl || ''))
+    if (!parsed) {
+      return NextResponse.json({ error: 'Invalid image data' }, { status: 400 })
+    }
+
+    fileBytes = parsed.bytes
+    fileType = parsed.contentType
+  } else {
+    const formData = await request.formData()
+    const file = formData.get('file') as File | null
+    productId = String(formData.get('productId') || 'product')
+
+    if (!file) {
+      return NextResponse.json({ error: 'No file uploaded' }, { status: 400 })
+    }
+
+    fileBytes = await file.arrayBuffer()
+    fileType = file.type || 'image/jpeg'
   }
 
-  if (!allowedTypes.has(file.type)) {
+  if (!allowedTypes.has(fileType)) {
     return NextResponse.json({ error: 'รองรับเฉพาะไฟล์รูปภาพ jpg, png, webp หรือ gif' }, { status: 400 })
   }
 
-  if (file.size > maxFileSize) {
+  if (fileBytes.byteLength > maxFileSize) {
     return NextResponse.json({ error: 'รูปใหญ่เกินไป กรุณาใช้ไฟล์ไม่เกิน 8MB' }, { status: 400 })
   }
 
   await ensurePublicBucket(supabase)
 
-  const extension = getFileExtension(file)
+  const extension = getFileExtension(fileType)
   const safeProductId = productId.replace(/[^a-zA-Z0-9-_]/g, '-').slice(0, 80) || 'product'
   const filePath = `products/${safeProductId}-${Date.now()}.${extension}`
-  const bytes = await file.arrayBuffer()
 
-  const { error: uploadError } = await supabase.storage.from(bucketName).upload(filePath, bytes, {
-    contentType: file.type || 'image/jpeg',
+  const { error: uploadError } = await supabase.storage.from(bucketName).upload(filePath, fileBytes, {
+    contentType: fileType,
     upsert: true
   })
 
@@ -82,9 +102,23 @@ async function ensurePublicBucket(supabase: ServerSupabase) {
   }
 }
 
-function getFileExtension(file: File) {
-  if (file.type === 'image/png') return 'png'
-  if (file.type === 'image/webp') return 'webp'
-  if (file.type === 'image/gif') return 'gif'
+function parseDataUrl(dataUrl: string) {
+  const match = dataUrl.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/)
+  if (!match) return null
+
+  const contentType = match[1]
+  const base64 = match[2]
+  const bytes = Buffer.from(base64, 'base64')
+
+  return {
+    contentType,
+    bytes: bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength)
+  }
+}
+
+function getFileExtension(contentType: string) {
+  if (contentType === 'image/png') return 'png'
+  if (contentType === 'image/webp') return 'webp'
+  if (contentType === 'image/gif') return 'gif'
   return 'jpg'
 }
