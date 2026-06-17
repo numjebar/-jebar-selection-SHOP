@@ -1,0 +1,88 @@
+.posterPreview {
+  overflow: visible;
+}
+
+.posterGrid {
+  align-items: start;
+}
+
+.posterProduct {
+  min-width: 0;
+}
+
+.posterProduct strong {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-height: 1.25;
+  max-width: 130px;
+  min-height: 28px;
+  overflow: hidden;
+  text-align: center;
+}
+
+.posterGrid .miniThumb {
+  height: 74px;
+}
+
+.orderSummaryList {
+  border-bottom: 1px solid var(--line);
+  display: grid;
+  gap: 10px;
+  margin: 12px 0;
+  padding-bottom: 12px;
+}
+
+.orderSummaryItem {
+  align-items: start;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+}
+
+.orderSummaryItem span {
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.orderSummaryItem b {
+  color: var(--brown);
+  white-space: nowrap;
+}
+
+.orderSummaryItem strong {
+  white-space: nowrap;
+}
+
+.orderSummaryTotal {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.orderSummaryTotal span {
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.orderSummaryTotal strong {
+  font-family: var(--font-serif);
+  font-size: 22px;
+}
+
+@media (max-width: 760px) {
+  .posterGrid {
+    gap: 12px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .posterPreview {
+    padding: 20px;
+  }
+
+  .posterPreview h3 {
+    font-size: 26px;
+  }
+}
