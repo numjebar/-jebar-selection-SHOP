@@ -72,6 +72,173 @@
   font-size: 22px;
 }
 
+.compactCustomerPage {
+  gap: 18px;
+  grid-template-columns: minmax(360px, 520px) minmax(260px, 360px);
+  padding: 24px 18px;
+}
+
+.compactPhoneFrame {
+  border-radius: 20px;
+  padding: 14px;
+}
+
+.compactPhoneHeader {
+  margin-bottom: 4px;
+}
+
+.compactCustomerHero {
+  padding: 10px 0 12px;
+}
+
+.compactCustomerHero h1 {
+  font-size: 28px;
+  margin-bottom: 2px;
+}
+
+.compactCustomerHero p {
+  margin-bottom: 0;
+}
+
+.compactCustomerList {
+  gap: 8px;
+}
+
+.compactCustomerItem {
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 86px minmax(0, 1fr) 112px;
+  padding: 8px 0;
+}
+
+.compactCustomerItem:last-child {
+  border-bottom: 0;
+}
+
+.compactCustomerItem .miniThumb {
+  border-radius: 10px;
+  height: 86px;
+  width: 86px;
+}
+
+.customerItemInfo {
+  min-width: 0;
+}
+
+.customerItemInfo strong {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  font-size: 17px;
+  line-height: 1.22;
+  margin-bottom: 3px;
+  overflow: hidden;
+}
+
+.customerItemInfo span {
+  align-items: baseline;
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 16px;
+  font-weight: 800;
+  gap: 6px;
+}
+
+.customerItemInfo small {
+  color: var(--green);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.compactMiniStepper {
+  grid-template-columns: 34px 40px 34px;
+  justify-self: end;
+}
+
+.compactMiniStepper button,
+.compactMiniStepper b {
+  min-height: 36px;
+}
+
+.compactCustomerFooter {
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.compactOrderSummary {
+  box-shadow: none;
+  padding: 12px;
+}
+
+.compactOrderSummary h2 {
+  font-size: 19px;
+  margin-bottom: 8px;
+}
+
+.orderSummaryList.compact {
+  gap: 6px;
+  margin: 8px 0;
+  padding-bottom: 8px;
+}
+
+.orderSummaryItem.compact {
+  gap: 8px;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+}
+
+.orderSummaryItem.compact span {
+  font-size: 15px;
+  line-height: 1.25;
+}
+
+.orderSummaryItem.compact b,
+.orderSummaryItem.compact strong {
+  font-size: 15px;
+}
+
+.orderSummaryTotal.compact {
+  margin-top: 8px;
+}
+
+.orderSummaryTotal.compact strong {
+  font-size: 26px;
+}
+
+.compactHint {
+  margin-bottom: 0;
+}
+
+.compactHowTo {
+  padding: 14px;
+}
+
+.compactHowTo h2 {
+  font-size: 20px;
+}
+
+.compactHowTo ul {
+  line-height: 1.65;
+}
+
+.mobileSaveBox {
+  background: #fff8e7;
+  border: 1px solid #f0d79d;
+  border-radius: 8px;
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 12px;
+}
+
+.mobileSaveBox p {
+  color: #775315;
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0;
+}
+
 @media (max-width: 760px) {
   .posterGrid {
     gap: 12px;
@@ -84,5 +251,46 @@
 
   .posterPreview h3 {
     font-size: 26px;
+  }
+
+  .compactCustomerPage {
+    display: block;
+    padding: 10px;
+  }
+
+  .compactPhoneFrame {
+    border-radius: 16px;
+    padding: 12px;
+  }
+
+  .compactCustomerNotes {
+    margin-top: 10px;
+  }
+
+  .compactCustomerItem {
+    grid-template-columns: 92px minmax(0, 1fr) 106px;
+    gap: 10px;
+    padding: 7px 0;
+  }
+
+  .compactCustomerItem .miniThumb {
+    height: 92px;
+    width: 92px;
+  }
+
+  .customerItemInfo strong {
+    font-size: 16px;
+  }
+
+  .customerItemInfo span {
+    font-size: 15px;
+  }
+
+  .compactMiniStepper {
+    grid-template-columns: 30px 36px 30px;
+  }
+
+  .compactOrderSummary {
+    padding: 10px;
   }
 }
