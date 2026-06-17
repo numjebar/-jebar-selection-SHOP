@@ -1,17 +1,15 @@
 'use client'
 
 import Link from 'next/link'
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { Download, Link2, MessageCircle, MessagesSquare, Printer, Send } from 'lucide-react'
-import { toPng } from 'html-to-image'
 import { CatalogPoster, Sidebar } from '../../../components/AppUi'
-import { getAvailableProducts, getTodayLabel } from '../../../lib/catalogData'
+import { Product, SelectionMap, formatBaht, getAvailableProducts, getTodayLabel } from '../../../lib/catalogData'
 import { useCatalogStore } from '../../../lib/useCatalogStore'
 
 export default function CatalogBuilderPage() {
   const { products, selection, messages } = useCatalogStore()
   const todayProducts = getAvailableProducts(products, selection)
-  const posterRef = useRef<HTMLDivElement>(null)
   const [isDownloading, setIsDownloading] = useState(false)
   const [copied, setCopied] = useState('')
   const customerUrl = typeof window === 'undefined' ? '/catalog' : `${window.location.origin}/catalog`
@@ -23,29 +21,16 @@ export default function CatalogBuilderPage() {
   }
 
   async function downloadCatalogImage() {
-    if (!posterRef.current) return
-
     setIsDownloading(true)
 
     try {
-      await waitForImages(posterRef.current)
-      const restoreImages = await embedImagesForDownload(posterRef.current)
-
-      try {
-        const dataUrl = await toPng(posterRef.current, {
-          cacheBust: true,
-          pixelRatio: 1.5,
-          backgroundColor: '#f2dfbf',
-          quality: 0.95,
-          skipFonts: true
-        })
-        const link = document.createElement('a')
-        link.download = `je-bar-catalog-${new Date().toISOString().slice(0, 10)}.png`
-        link.href = dataUrl
-        link.click()
-      } finally {
-        restoreImages()
-      }
+      const dataUrl = await renderCatalogCanvas(todayProducts, selection)
+      const link = document.createElement('a')
+      link.download = `je-bar-catalog-${new Date().toISOString().slice(0, 10)}.png`
+      link.href = dataUrl
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
     } catch (error) {
       console.error(error)
       alert('ดาวน์โหลดรูปไม่สำเร็จ กรุณาลองใหม่ หรือใช้ปุ่มพิมพ์ / PDF')
@@ -82,13 +67,11 @@ export default function CatalogBuilderPage() {
 
         <div className="builderGrid">
           <section className="catalogCanvas surface">
-            <div ref={posterRef}>
-              <CatalogPoster products={todayProducts} selection={selection} />
-            </div>
+            <CatalogPoster products={todayProducts} selection={selection} />
             <div className="builderActions">
               <button className="button darkButton" onClick={downloadCatalogImage} disabled={isDownloading}>
                 <Download size={17} />
-                {isDownloading ? 'กำลังดาวน์โหลด' : 'ดาวน์โหลดรูปภาพ'}
+                {isDownloading ? 'กำลังสร้างรูป...' : 'ดาวน์โหลดรูปภาพ'}
               </button>
               <button className="button greenButton" onClick={copyLink}>
                 <Link2 size={17} />
@@ -150,47 +133,172 @@ export default function CatalogBuilderPage() {
   )
 }
 
-async function waitForImages(root: HTMLElement) {
-  const images = Array.from(root.querySelectorAll('img'))
-  await Promise.all(
-    images.map((image) => {
-      if (image.complete && image.naturalWidth > 0) return Promise.resolve()
-      return new Promise<void>((resolve) => {
-        image.onload = () => resolve()
-        image.onerror = () => resolve()
-      })
-    })
-  )
+async function renderCatalogCanvas(products: Product[], selection: SelectionMap) {
+  const width = 1200
+  const columns = 3
+  const gapX = 60
+  const gapY = 54
+  const paddingX = 80
+  const headerHeight = 260
+  const cardWidth = (width - paddingX * 2 - gapX * (columns - 1)) / columns
+  const cardHeight = 270
+  const rows = Math.max(1, Math.ceil(products.length / columns))
+  const height = headerHeight + rows * cardHeight + Math.max(0, rows - 1) * gapY + 90
+
+  const canvas = document.createElement('canvas')
+  canvas.width = width
+  canvas.height = height
+  const ctx = canvas.getContext('2d')
+  if (!ctx) throw new Error('Cannot create canvas')
+
+  ctx.fillStyle = '#f2dfbf'
+  ctx.fillRect(0, 0, width, height)
+  drawRoundedRect(ctx, 22, 22, width - 44, height - 44, 24, '#f2dfbf', '#e7cfa9')
+
+  ctx.textAlign = 'center'
+  ctx.fillStyle = '#3b3229'
+  ctx.font = '700 54px Georgia, serif'
+  ctx.fillText('J E B A R', width / 2, 100)
+
+  ctx.fillStyle = '#181512'
+  ctx.font = '900 64px sans-serif'
+  ctx.fillText('ขนมในตู้วันนี้', width / 2, 176)
+
+  ctx.font = '400 34px sans-serif'
+  ctx.fillText(getTodayLabel(), width / 2, 228)
+
+  const loadedImages = await Promise.all(products.map((product) => loadCatalogImage(product.imageUrl)))
+
+  for (let index = 0; index < products.length; index += 1) {
+    const product = products[index]
+    const row = Math.floor(index / columns)
+    const col = index % columns
+    const x = paddingX + col * (cardWidth + gapX)
+    const y = headerHeight + row * (cardHeight + gapY)
+    const image = loadedImages[index]
+    const imageSize = 150
+    const imageX = x + (cardWidth - imageSize) / 2
+    const imageY = y
+
+    if (image) {
+      drawRoundedImage(ctx, image, imageX, imageY, imageSize, imageSize, 18)
+    } else {
+      drawRoundedRect(ctx, imageX, imageY, imageSize, imageSize, 18, '#ead6b8')
+      ctx.fillStyle = '#6b3a0b'
+      ctx.font = '900 34px sans-serif'
+      ctx.fillText(product.nameTh.slice(0, 2), x + cardWidth / 2, imageY + 88)
+    }
+
+    ctx.fillStyle = '#181512'
+    ctx.font = '900 28px sans-serif'
+    drawCenteredWrappedText(ctx, product.nameTh, x + cardWidth / 2, y + 190, cardWidth, 34, 2)
+
+    ctx.font = '400 27px sans-serif'
+    ctx.fillText(formatBaht(product.price), x + cardWidth / 2, y + 258)
+
+    ctx.font = '400 25px sans-serif'
+    ctx.fillText(`เหลือ ${selection[product.id]?.quantity || 0} ชิ้น`, x + cardWidth / 2, y + 292)
+  }
+
+  return canvas.toDataURL('image/png', 0.95)
 }
 
-async function embedImagesForDownload(root: HTMLElement) {
-  const images = Array.from(root.querySelectorAll('img'))
-  const originals = images.map((image) => ({ image, src: image.src }))
+async function loadCatalogImage(src: string) {
+  if (!src) return null
 
-  await Promise.all(
-    images.map(async (image) => {
-      if (!image.src || image.src.startsWith('data:') || image.src.startsWith('blob:')) return
-
-      try {
-        const response = await fetch('/api/image-data-url', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ url: image.src })
-        })
-        if (!response.ok) return
-        const data = (await response.json()) as { dataUrl?: string }
-        if (data.dataUrl) image.src = data.dataUrl
-      } catch {
-        // keep original image when conversion fails
-      }
-    })
-  )
-
-  await waitForImages(root)
-
-  return () => {
-    originals.forEach(({ image, src }) => {
-      image.src = src
-    })
+  let imageSrc = src
+  if (!src.startsWith('data:')) {
+    const response = await fetch('/api/image-data-url', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url: src })
+    }).catch(() => null)
+    if (response?.ok) {
+      const data = (await response.json().catch(() => ({}))) as { dataUrl?: string }
+      if (data.dataUrl) imageSrc = data.dataUrl
+    }
   }
+
+  return new Promise<HTMLImageElement | null>((resolve) => {
+    const image = new Image()
+    image.onload = () => resolve(image)
+    image.onerror = () => resolve(null)
+    image.src = imageSrc
+  })
+}
+
+function drawCenteredWrappedText(ctx: CanvasRenderingContext2D, text: string, centerX: number, y: number, maxWidth: number, lineHeight: number, maxLines: number) {
+  const words = text.split(' ')
+  const lines: string[] = []
+  let line = ''
+
+  for (const word of words) {
+    const testLine = line ? `${line} ${word}` : word
+    if (ctx.measureText(testLine).width > maxWidth && line) {
+      lines.push(line)
+      line = word
+    } else {
+      line = testLine
+    }
+  }
+  if (line) lines.push(line)
+
+  lines.slice(0, maxLines).forEach((item, index) => {
+    ctx.fillText(item, centerX, y + index * lineHeight)
+  })
+}
+
+function drawRoundedRect(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number, fill: string, stroke?: string) {
+  ctx.beginPath()
+  ctx.moveTo(x + radius, y)
+  ctx.lineTo(x + width - radius, y)
+  ctx.quadraticCurveTo(x + width, y, x + width, y + radius)
+  ctx.lineTo(x + width, y + height - radius)
+  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height)
+  ctx.lineTo(x + radius, y + height)
+  ctx.quadraticCurveTo(x, y + height, x, y + height - radius)
+  ctx.lineTo(x, y + radius)
+  ctx.quadraticCurveTo(x, y, x + radius, y)
+  ctx.closePath()
+  ctx.fillStyle = fill
+  ctx.fill()
+  if (stroke) {
+    ctx.strokeStyle = stroke
+    ctx.lineWidth = 2
+    ctx.stroke()
+  }
+}
+
+function drawRoundedImage(ctx: CanvasRenderingContext2D, image: HTMLImageElement, x: number, y: number, width: number, height: number, radius: number) {
+  ctx.save()
+  ctx.beginPath()
+  ctx.moveTo(x + radius, y)
+  ctx.lineTo(x + width - radius, y)
+  ctx.quadraticCurveTo(x + width, y, x + width, y + radius)
+  ctx.lineTo(x + width, y + height - radius)
+  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height)
+  ctx.lineTo(x + radius, y + height)
+  ctx.quadraticCurveTo(x, y + height, x, y + height - radius)
+  ctx.lineTo(x, y + radius)
+  ctx.quadraticCurveTo(x, y, x + radius, y)
+  ctx.closePath()
+  ctx.clip()
+
+  const sourceRatio = image.width / image.height
+  const targetRatio = width / height
+  let sx = 0
+  let sy = 0
+  let sw = image.width
+  let sh = image.height
+
+  if (sourceRatio > targetRatio) {
+    sw = image.height * targetRatio
+    sx = (image.width - sw) / 2
+  } else {
+    sh = image.width / targetRatio
+    sy = (image.height - sh) / 2
+  }
+
+  ctx.drawImage(image, sx, sy, sw, sh, x, y, width, height)
+  ctx.restore()
 }
