@@ -2,8 +2,8 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { ClipboardCopy, Menu } from 'lucide-react'
-import { track } from '@vercel/analytics'
 import { BrandLogo, ProductThumb } from '../../components/AppUi'
+import { trackCatalogEvent } from '../../lib/analytics'
 import { formatBaht, getAvailableProducts, getTodayLabel } from '../../lib/catalogData'
 import { useCatalogStore } from '../../lib/useCatalogStore'
 
@@ -20,7 +20,7 @@ export default function CatalogPage() {
   const totalPrice = selectedProducts.reduce((sum, product) => sum + product.price * (cart[product.id] || 0), 0)
 
   useEffect(() => {
-    track('Catalog Viewed')
+    trackCatalogEvent('Catalog Viewed')
   }, [])
 
   const orderText = useMemo(() => {
@@ -40,21 +40,23 @@ export default function CatalogPage() {
     const nextQuantity = Math.max(0, Math.min(quantity, max))
     if (nextQuantity === currentQuantity) return
 
-    track(nextQuantity > currentQuantity ? 'Cart Item Added' : 'Cart Item Removed', {
+    const product = products.find((item) => item.id === id)
+    trackCatalogEvent(nextQuantity > currentQuantity ? 'Cart Item Added' : 'Cart Item Removed', {
       productId: id,
+      productName: product?.nameTh || id,
       quantity: nextQuantity
     })
     setCart((current) => ({ ...current, [id]: nextQuantity }))
   }
 
   function startCatalog() {
-    track('Catalog Started', { productCount: todayProducts.length })
+    trackCatalogEvent('Catalog Started', { productCount: todayProducts.length })
     setHasStarted(true)
   }
 
   async function copyOrder() {
     await navigator.clipboard.writeText(orderText)
-    track('Order Copied', { itemCount: totalQuantity, totalValue: totalPrice })
+    trackCatalogEvent('Order Copied', { itemCount: totalQuantity, totalValue: totalPrice })
     setCopied(true)
     window.setTimeout(() => setCopied(false), 1800)
   }

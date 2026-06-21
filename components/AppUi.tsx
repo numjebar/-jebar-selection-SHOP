@@ -20,10 +20,9 @@ export function Sidebar({ active }: { active: string }) {
     { id: 'orders', href: '/catalog', label: 'หน้าลูกค้า', icon: Users },
     {
       id: 'analytics',
-      href: 'https://vercel.com/num-s-projects2/jebar_catalog_app_production_v1/analytics',
+      href: '/admin/analytics',
       label: 'KPI / Analytics',
-      icon: BarChart3,
-      external: true
+      icon: BarChart3
     },
     { id: 'settings', href: '/admin/settings', label: 'ตั้งค่าข้อความ', icon: Settings }
   ]
@@ -54,8 +53,6 @@ export function Sidebar({ active }: { active: string }) {
               className={active === item.id ? 'active' : ''}
               href={item.href}
               key={item.id}
-              target={item.external ? '_blank' : undefined}
-              rel={item.external ? 'noreferrer' : undefined}
             >
               <Icon size={17} />
               {item.label}
