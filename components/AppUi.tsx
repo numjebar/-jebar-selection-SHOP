@@ -3,7 +3,8 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { ClipboardList, LayoutDashboard, LogOut, Package, Settings, ShoppingBag, Users } from 'lucide-react'
-import { formatBaht, getTodayLabel } from '../lib/catalogData'
+import { formatBaht } from '../lib/catalogData'
+import { useTodayLabel } from '../lib/useTodayLabel'
 
 export function BrandLogo({ compact = false }: { compact?: boolean }) {
   return <img className={compact ? 'brandLogo compact' : 'brandLogo'} src="/jebar-logo.png" alt="JE BAR" />
@@ -83,13 +84,15 @@ export function CatalogPoster({
   products: { id: string; nameTh: string; price: number; imageUrl: string }[]
   selection: Record<string, { quantity: number; isAvailable: boolean }>
 }) {
+  const todayLabel = useTodayLabel()
+
   return (
     <div className="posterPreview">
       <div className="posterBrand">
         <BrandLogo compact />
       </div>
       <h3>ขนมในตู้วันนี้</h3>
-      <p>{getTodayLabel()}</p>
+      <p>{todayLabel}</p>
       <div className="posterGrid">
         {products.map((product) => (
           <div className="posterProduct" key={product.id}>

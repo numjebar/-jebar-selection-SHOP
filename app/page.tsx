@@ -3,11 +3,13 @@
 import Link from 'next/link'
 import { CalendarDays } from 'lucide-react'
 import { CatalogPoster, Metric, ProductThumb, Sidebar } from '../components/AppUi'
-import { formatBaht, getAvailableProducts, getTodayLabel } from '../lib/catalogData'
+import { formatBaht, getAvailableProducts } from '../lib/catalogData'
 import { useCatalogStore } from '../lib/useCatalogStore'
+import { useTodayLabel } from '../lib/useTodayLabel'
 
 export default function DashboardPage() {
   const { products, selection, stats, savedAt } = useCatalogStore()
+  const todayLabel = useTodayLabel()
   const todayProducts = getAvailableProducts(products, selection)
   const recentProducts = todayProducts.slice(0, 5)
 
@@ -23,7 +25,7 @@ export default function DashboardPage() {
           </div>
           <div className="dateChip">
             <CalendarDays size={16} />
-            วันนี้ {getTodayLabel()}
+            วันนี้ {todayLabel}
           </div>
         </header>
 

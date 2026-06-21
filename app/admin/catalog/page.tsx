@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Download, Link2, MessageCircle, MessagesSquare, Printer, Send } from 'lucide-react'
 import { CatalogPoster, Sidebar } from '../../../components/AppUi'
 import { Product, SelectionMap, formatBaht, getAvailableProducts, getTodayLabel } from '../../../lib/catalogData'
@@ -14,7 +14,11 @@ export default function CatalogBuilderPage() {
   const [isMigrating, setIsMigrating] = useState(false)
   const [mobileImageUrl, setMobileImageUrl] = useState('')
   const [copied, setCopied] = useState('')
-  const customerUrl = typeof window === 'undefined' ? '/catalog' : `${window.location.origin}/catalog`
+  const [customerUrl, setCustomerUrl] = useState('/catalog')
+
+  useEffect(() => {
+    setCustomerUrl(`${window.location.origin}/catalog`)
+  }, [])
   const lineUrl = process.env.NEXT_PUBLIC_LINE_OA_URL || process.env.NEXT_PUBLIC_LINE_URL || 'https://lin.ee/t8QoAix'
   const facebookUrl = process.env.NEXT_PUBLIC_FACEBOOK_INBOX_URL || process.env.NEXT_PUBLIC_MESSENGER_URL || 'https://m.me/102339796492016'
 
