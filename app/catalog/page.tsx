@@ -1,7 +1,8 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { ClipboardCopy, Menu } from 'lucide-react'
+import { track } from '@vercel/analytics'
 import { BrandLogo, ProductThumb } from '../../components/AppUi'
 import { formatBaht, getAvailableProducts, getTodayLabel } from '../../lib/catalogData'
 import { useCatalogStore } from '../../lib/useCatalogStore'
@@ -18,6 +19,10 @@ export default function CatalogPage() {
   const totalQuantity = selectedProducts.reduce((sum, product) => sum + (cart[product.id] || 0), 0)
   const totalPrice = selectedProducts.reduce((sum, product) => sum + product.price * (cart[product.id] || 0), 0)
 
+  useEffect(() => {
+    track('Catalog Viewed')
+  }, [])
+
   const orderText = useMemo(() => {
     return [
       'รายการที่สั่ง',
@@ -31,11 +36,25 @@ export default function CatalogPage() {
   }, [cart, selectedProducts, totalPrice, totalQuantity])
 
   function updateCart(id: string, quantity: number, max: number) {
-    setCart((current) => ({ ...current, [id]: Math.max(0, Math.min(quantity, max)) }))
+    const currentQuantity = cart[id] || 0
+    const nextQuantity = Math.max(0, Math.min(quantity, max))
+    if (nextQuantity === currentQuantity) return
+
+    track(nextQuantity > currentQuantity ? 'Cart Item Added' : 'Cart Item Removed', {
+      productId: id,
+      quantity: nextQuantity
+    })
+    setCart((current) => ({ ...current, [id]: nextQuantity }))
+  }
+
+  function startCatalog() {
+    track('Catalog Started', { productCount: todayProducts.length })
+    setHasStarted(true)
   }
 
   async function copyOrder() {
     await navigator.clipboard.writeText(orderText)
+    track('Order Copied', { itemCount: totalQuantity, totalValue: totalPrice })
     setCopied(true)
     window.setTimeout(() => setCopied(false), 1800)
   }
@@ -93,7 +112,7 @@ export default function CatalogPage() {
                 <span>อัปเดตล่าสุด</span>
               </div>
             </div>
-            <button className="button goldButton fullWidth" onClick={() => setHasStarted(true)}>
+            <button className="button goldButton fullWidth" onClick={startCatalog}>
               ดูรายการขนม
             </button>
           </section>

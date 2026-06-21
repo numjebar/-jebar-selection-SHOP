@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { ClipboardList, LayoutDashboard, LogOut, Package, Settings, ShoppingBag, Users } from 'lucide-react'
+import { BarChart3, ClipboardList, LayoutDashboard, LogOut, Package, Settings, ShoppingBag, Users } from 'lucide-react'
 import { formatBaht } from '../lib/catalogData'
 import { useTodayLabel } from '../lib/useTodayLabel'
 
@@ -18,6 +18,13 @@ export function Sidebar({ active }: { active: string }) {
     { id: 'selection', href: '/admin/selection', label: 'สินค้าวันนี้', icon: ClipboardList },
     { id: 'catalog', href: '/admin/catalog', label: 'แคตตาล็อก', icon: ShoppingBag },
     { id: 'orders', href: '/catalog', label: 'หน้าลูกค้า', icon: Users },
+    {
+      id: 'analytics',
+      href: 'https://vercel.com/num-s-projects2/jebar_catalog_app_production_v1/analytics',
+      label: 'KPI / Analytics',
+      icon: BarChart3,
+      external: true
+    },
     { id: 'settings', href: '/admin/settings', label: 'ตั้งค่าข้อความ', icon: Settings }
   ]
 
@@ -43,7 +50,13 @@ export function Sidebar({ active }: { active: string }) {
         {items.map((item) => {
           const Icon = item.icon
           return (
-            <Link className={active === item.id ? 'active' : ''} href={item.href} key={item.id}>
+            <Link
+              className={active === item.id ? 'active' : ''}
+              href={item.href}
+              key={item.id}
+              target={item.external ? '_blank' : undefined}
+              rel={item.external ? 'noreferrer' : undefined}
+            >
               <Icon size={17} />
               {item.label}
             </Link>
